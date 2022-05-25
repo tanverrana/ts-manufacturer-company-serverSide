@@ -18,6 +18,7 @@ async function run() {
         await client.connect();
         const toolCollection = client.db("ts-manufacture-company").collection("tools");
         const reviewCollection = client.db("ts-manufacture-company").collection("reviews");
+        const orderCollection = client.db("ts-manufacture-company").collection("orders");
 
         app.get("/tool", async (req, res) => {
             const query = {};
@@ -47,7 +48,15 @@ async function run() {
             const newReview = req.body;
             const result = await reviewCollection.insertOne(newReview);
             res.send(result);
+        });
+
+        //order collection
+        app.post("/order", async (req, res) => {
+            const order = req.body;
+            const result = await orderCollection.insertOne(order);
+            res.send(result);
         })
+
     }
     finally {
 
