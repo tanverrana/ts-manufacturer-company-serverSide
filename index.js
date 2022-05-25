@@ -19,6 +19,7 @@ async function run() {
         const toolCollection = client.db("ts-manufacture-company").collection("tools");
         const reviewCollection = client.db("ts-manufacture-company").collection("reviews");
         const orderCollection = client.db("ts-manufacture-company").collection("orders");
+        const userCollection = client.db("ts-manufacture-company").collection("users");
 
         app.get("/tool", async (req, res) => {
             const query = {};
@@ -34,6 +35,19 @@ async function run() {
             const tool = await toolCollection.findOne(query);
             res.send(tool);
         });
+
+        //user create
+        app.put("/user/:email", async (req, res) => {
+            const email = req.params.email;
+            const user = req.body;
+            const filter = { email: email };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: user,
+            };
+            const result = await userCollection.updateOne(filter, updateDoc, options);
+            res.send(result);
+        })
 
         //review
         app.get("/review", async (req, res) => {
@@ -55,6 +69,14 @@ async function run() {
             const order = req.body;
             const result = await orderCollection.insertOne(order);
             res.send(result);
+        });
+
+        //order data
+        app.get("/order", async (req, res) => {
+            const customer = req.query.customer;
+            const query = { customer: customer };
+            const orders = await orderCollection.find(query).toArray();
+            res.send(orders);
         })
 
     }
