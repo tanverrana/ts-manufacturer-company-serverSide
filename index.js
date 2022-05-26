@@ -72,7 +72,18 @@ async function run() {
             const result = await userCollection.updateOne(filter, updateDoc, options);
             const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '2h' })
             res.send({ result, token });
+        });
+
+        //require admin create
+        app.get("/admin/:email", async (req, res) => {
+            const email = req.params.email;
+            const user = await userCollection.findOne({ email: email });
+            const isAdmin = user.role === "admin";
+            res.send({ admin: isAdmin })
         })
+
+
+
         app.put("/user/admin/:email", async (req, res) => {
             const email = req.params.email;
 
@@ -109,16 +120,13 @@ async function run() {
         //order data
         app.get("/order", async (req, res) => {
             const customer = req.query.customer;
-            const decodedEmail = req.decoded.email;
-            if (customer === decodedEmail) {
 
-                const query = { customer: customer };
-                const orders = await orderCollection.find(query).toArray();
-                return res.send(orders);
-            }
-            else {
-                return res.status(403).send({ message: "forbidden access" })
-            }
+
+            const query = { customer: customer };
+            const orders = await orderCollection.find(query).toArray();
+            return res.send(orders);
+
+
         })
 
     }
