@@ -14,6 +14,23 @@ app.use(express.json());
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ygrmxpu.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
+
+//verify token
+function verifyJWT(req, res, next) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        return res.status(401).send({ message: "Unauthorized access" });
+    }
+    const token = authHeader.split(" ")[1];
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
+        if (err) {
+            return res.status(403).send({ message: "Forbidden access" })
+        }
+        req.decoded = decoded;
+        next();
+    });
+}
+
 async function run() {
     try {
         await client.connect();
@@ -74,11 +91,18 @@ async function run() {
         });
 
         //order data
-        app.get("/order", async (req, res) => {
+        app.get("/order", verifyJWT, async (req, res) => {
             const customer = req.query.customer;
-            const query = { customer: customer };
-            const orders = await orderCollection.find(query).toArray();
-            res.send(orders);
+            const decodedEmail = req.decoded.email;
+            if (customer === decodedEmail) {
+
+                const query = { customer: customer };
+                const orders = await orderCollection.find(query).toArray();
+                return res.send(orders);
+            }
+            else {
+                return res.status(403).send({ message: "forbidden access" })
+            }
         })
 
     }
