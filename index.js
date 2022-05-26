@@ -16,7 +16,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 
 //verify token
-function verifyJWT(req, res, next) {
+/* function verifyJWT(req, res, next) {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
         return res.status(401).send({ message: "Unauthorized access" });
@@ -29,7 +29,7 @@ function verifyJWT(req, res, next) {
         req.decoded = decoded;
         next();
     });
-}
+} */
 
 async function run() {
     try {
@@ -61,7 +61,7 @@ async function run() {
         })
 
         //user create
-        app.put("/user/:email", verifyJWT, async (req, res) => {
+        app.put("/user/:email", async (req, res) => {
             const email = req.params.email;
             const user = req.body;
             const filter = { email: email };
@@ -73,7 +73,7 @@ async function run() {
             const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '2h' })
             res.send({ result, token });
         })
-        app.put("/user/admin/:email", verifyJWT, async (req, res) => {
+        app.put("/user/admin/:email", async (req, res) => {
             const email = req.params.email;
 
             const filter = { email: email };
@@ -107,7 +107,7 @@ async function run() {
         });
 
         //order data
-        app.get("/order", verifyJWT, async (req, res) => {
+        app.get("/order", async (req, res) => {
             const customer = req.query.customer;
             const decodedEmail = req.decoded.email;
             if (customer === decodedEmail) {
