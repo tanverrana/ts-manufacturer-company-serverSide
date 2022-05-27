@@ -54,6 +54,13 @@ async function run() {
             res.send(tool);
         });
 
+        //add tool 
+        app.post("/tool", async (req, res) => {
+            const newTool = req.body;
+            const result = await toolCollection.insertOne(newTool);
+            res.send(result);
+        });
+
         //get all user
         app.get("/user", async (req, res) => {
             const users = await userCollection.find().toArray();
