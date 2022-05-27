@@ -158,7 +158,15 @@ async function run() {
             const query = { _id: ObjectId(id) };
             const result = await toolCollection.deleteOne(query);
             res.send(result);
-        })
+        });
+
+        //order delete
+        app.delete("/orders/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await toolCollection.deleteOne(query);
+            res.send(result);
+        });
 
     }
     finally {
