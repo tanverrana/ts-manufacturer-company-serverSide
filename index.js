@@ -136,6 +136,15 @@ async function run() {
 
         });
 
+        //orders api create
+        app.get("/orders", async (req, res) => {
+            const query = {};
+            const cursor = orderCollection.find(query);
+            const orders = await cursor.toArray();
+            res.send(orders);
+
+        });
+
         //tool delete api
         app.delete("/tool/:id", async (req, res) => {
             const id = req.params.id;
