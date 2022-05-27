@@ -39,6 +39,7 @@ async function run() {
         const reviewCollection = client.db("ts-manufacture-company").collection("reviews");
         const orderCollection = client.db("ts-manufacture-company").collection("orders");
         const userCollection = client.db("ts-manufacture-company").collection("users");
+        const paymentCollection = client.db("ts-manufacture-company").collection("payments");
 
         app.get("/tool", async (req, res) => {
             const query = {};
@@ -181,6 +182,24 @@ async function run() {
                 payment_method_types: ["card"]
             });
             res.send({ clientSecret: paymentIntent.client_secret })
+        });
+
+        //store transaction id
+        app.patch("/order/:id", async (req, res) => {
+            const id = req.params.id;
+            const payment = req.body;
+            const filter = { _id: ObjectId(id) };
+            const updateDoc = {
+                $set: {
+                    paid: true,
+                    transactionId: payment.transactionId,
+
+                }
+            }
+            const result = await paymentCollection.insertOne(payment);
+            const updatedOrder = await orderCollection.updateOne(filter, updateDoc);
+            res.send(updateDoc);
+
         })
 
     }
